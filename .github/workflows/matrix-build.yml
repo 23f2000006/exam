@@ -1,0 +1,42 @@
+name: Matrix Build with Artifacts
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [14, 16, 18]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: matrix-ac4a0e2
+        run: echo "Building for OS=${{ matrix.os }}, Node=${{ matrix.node-version }}"
+
+      - name: Generate build artifact
+        shell: bash
+        run: |
+          echo "Build output for ${{ matrix.os }} with Node.js ${{ matrix.node-version }}" > output-${{ matrix.os }}-node${{ matrix.node-version }}.txt
+          echo "Build timestamp: $(date)" >> output-${{ matrix.os }}-node${{ matrix.node-version }}.txt
+          echo "Matrix configuration: OS=${{ matrix.os }}, Node=${{ matrix.node-version }}" >> output-${{ matrix.os }}-node${{ matrix.node-version }}.txt
+          echo "GitHub Run ID: ${{ github.run_id }}" >> output-${{ matrix.os }}-node${{ matrix.node-version }}.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-ac4a0e2-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: output-${{ matrix.os }}-node${{ matrix.node-version }}.txt
